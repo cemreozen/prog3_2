@@ -116,7 +116,8 @@ public class Girokonto extends UeberweisungsfaehigesKonto{
 	public void waehrungswechsel(Waehrung neu) {
 			super.waehrungswechsel(neu);
 		try {
-			this.dispo = this.dispo.umrechnen(neu);
+			Geldbetrag konvertierterDispo = this.dispo.umrechnen(neu);
+			this.dispo = konvertierterDispo;
 		} catch (NullPointerException e) {
 			System.err.println(e.getMessage() + " Dispo kann nicht gewechselt werden.");
 		}

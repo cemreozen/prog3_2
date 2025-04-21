@@ -212,7 +212,8 @@ public abstract class Konto implements Comparable<Konto>
 
 	public void waehrungswechsel(Waehrung neu) {
 		try {
-			this.getKontostand().umrechnen(neu);
+			Geldbetrag konvertierterKontostand = this.getKontostand().umrechnen(neu);
+			this.setKontostand(konvertierterKontostand);
 		} catch (NullPointerException e) {
 			System.err.println(e.getMessage() + " Kontostand wird nicht gewechselt.");
 		}

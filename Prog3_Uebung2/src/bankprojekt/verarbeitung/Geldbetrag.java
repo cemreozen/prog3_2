@@ -20,7 +20,6 @@ public class Geldbetrag implements Comparable<Geldbetrag>{
 	 */
 	public static final Geldbetrag NULL_EURO = new Geldbetrag(0);
 
-	
 	/**
 	 * erstellt einen Geldbetrag in der Währung Euro
 	 * @param betrag Betrag in €
@@ -70,9 +69,10 @@ public class Geldbetrag implements Comparable<Geldbetrag>{
 		//summand ist negativ, das kann bei Konto-Transaktionen Fehler verursachen
 		if (summand.isNegativ())
 			throw new IllegalArgumentException("Der Summand ist negativ. Bitte die minus-Methode verwenden.");
+		Geldbetrag konvertierterSummand = summand;
 		if (this.waehrung != summand.waehrung)
-			summand = summand.umrechnen(this.waehrung);
-		return new Geldbetrag(this.betrag + summand.betrag, this.waehrung);
+			konvertierterSummand = summand.umrechnen(this.waehrung);
+		return new Geldbetrag(this.betrag + konvertierterSummand.betrag, this.waehrung);
 	}
 	
 	/**
@@ -88,11 +88,12 @@ public class Geldbetrag implements Comparable<Geldbetrag>{
 			throw new NullPointerException("Der Subtrahend ist null");
 		if (subtrahend.isNegativ())
 			throw new IllegalArgumentException("Der Subtrahend ist negativ. Bitte die plus-Methode verwenden.");
+		Geldbetrag konvertierterSubtrahend = subtrahend;
 		if (this.waehrung != subtrahend.waehrung)
-			subtrahend = subtrahend.umrechnen(this.waehrung);
+			konvertierterSubtrahend = subtrahend.umrechnen(this.waehrung);
 		if (this.betrag < subtrahend.betrag)
 			throw new IllegalArgumentException("Die Differenz ist negativ");
-		return new Geldbetrag(this.betrag - subtrahend.betrag, this.waehrung);
+		return new Geldbetrag(this.betrag - konvertierterSubtrahend.betrag, this.waehrung);
 	}
 
 	/**
@@ -108,15 +109,29 @@ public class Geldbetrag implements Comparable<Geldbetrag>{
 		return new Geldbetrag(this.betrag * faktor, this.waehrung);
 	}
 
+	/**
+	 * vergleicht this mit o
+	 * @param o das Objekt, mit dem this verglichen wird.
+	 * @return 0, wenn this und o gleich sind, 1, wenn this > o und -1, wenn this < o
+	 * @throws NullPointerException wenn o null ist
+	 */
 	@Override
 	public int compareTo(Geldbetrag o) throws NullPointerException {
 		if (o == null)
 			throw new NullPointerException("Der eingegebene Geldbetrag ist null");
+
+		Geldbetrag konvertierterO = o;
 		if (this.waehrung != o.waehrung)
-			o = o.umrechnen(this.waehrung);
-		return Double.compare(this.betrag, o.betrag);
+			konvertierterO = o.umrechnen(this.waehrung);
+		return Double.compare(this.betrag, konvertierterO.betrag);
 	}
 
+	/**
+	 * Ueberprueft ob this und o dem gleichen Geldbetrag entsprechen
+	 * @param o das Objekt, mit dem this verglichen wird
+	 * @return true, wenn this und o dem gleichen Geldbetrag entsprechen
+	 * @throws NullPointerException wenn o null ist
+	 */
 	@Override
 	public boolean equals(Object o) throws NullPointerException
 	{
@@ -146,7 +161,7 @@ public class Geldbetrag implements Comparable<Geldbetrag>{
 		if (this.waehrung == Waehrung.EUR)
 			return new Geldbetrag(this.getBetrag() * zielwaehrung.getWechselkurs());
 
-		//Wenn, this.waehrung noch die Zielwährung Euro sind,
+		//Falls weder this.waehrung noch die Zielwährung Euro sind,
 		//wird erst this in Euro umgerechnet und dann in die Zielwährung.
 		return new Geldbetrag(this.getBetrag() / this.waehrung.getWechselkurs()
 				* zielwaehrung.getWechselkurs(), zielwaehrung);
